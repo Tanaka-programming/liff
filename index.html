@@ -27,23 +27,27 @@
         async function initializeLiff() {
             const profileInfoElement = document.getElementById("profileInfo");
             const errorElement = document.getElementById("errorMessage");
+            
             try {
+                // LIFFを初期化
                 await liff.init({ liffId: MY_LIFF_ID });
 
+                // ログイン状態をチェック
                 if (!liff.isLoggedIn()) {
-                    profileInfoElement.innerText = "LINEにログインしていません。ログイン画面に移動します...";
+                    // 未ログインの場合、ユーザーにログインが必要なことを伝える
+                    profileInfoElement.innerText = "サービスの利用にはLINEログインが必要です。ログイン画面に移動します。";
                     
-                    // ★★★ 変更点 ★★★
-                    // 自動ログインを無効にして、SSO確認画面を意図的に表示させる
-                    liff.login({
-                        // disable_auto_login: true
-                    });
-                    liff.init({ liffId: MY_LIFF_ID })
-                    // liff.login()を呼び出すとページがリダイレクトされるため、以降の処理は行われない
-                    return;
+                    // liff.login() を呼び出してLINEログインのフローを開始
+                    // ログイン後、同じページにリダイレクトされて戻ってくる
+                    liff.login();
+                    
+                    // liff.login()はページをリダイレクトさせるため、これ以降のコードはこの実行では処理されない。
+                    // ログイン成功後にページが再読み込みされ、再度このinitializeLiff関数が実行されるのを待つ。
+                    return; 
                 }
 
-                // ログイン済みの場合
+                // ===== ログイン済みの場合の処理 =====
+                profileInfoElement.innerText = "ログイン情報を取得中です...";
                 const profile = await liff.getProfile();
                 profileInfoElement.innerText = `ようこそ、${profile.displayName} さん！友だち状態を確認します...`;
 
@@ -51,9 +55,9 @@
                 await checkFriendship();
 
             } catch (error) {
-                profileInfoElement.innerText = "LIFF初期化またはプロフィール取得に失敗しました。";
+                profileInfoElement.innerText = "処理中にエラーが発生しました。";
                 errorElement.innerText = `エラー: ${error.message}`;
-                console.error("LIFF Initialization or Profile failed", error);
+                console.error("LIFF Error", error);
             }
         }
 
@@ -63,30 +67,22 @@
             statusElement.innerText = ""; // 前回の結果をクリア
             errorElement.innerText = ""; // 前回のエラーをクリア
             
-            if (!liff.isLoggedIn()) {
-                statusElement.innerText = "再度ログインが必要です。ページをリロードするか、アプリを再起動してください。";
-                return;
-            }
-
             try {
                 const friendship = await liff.getFriendship();
 
                 if (friendship.friendFlag) {
-                    statusElement.innerText = "あなたは公式アカウントの友だちです！ミニアプリをご利用いただけます。";
-                    // ここで友だち向けのミニアプリのメインコンテンツを表示するなどの処理を行う
+                    statusElement.innerText = "あなたは公式アカウントの友だちです！";
                 } else {
-                    statusElement.innerText = "あなたはまだ公式アカウントの友だちではありません。友だち追加ページに移動します。";
-                    // 友だちでない場合の遷移処理
+                    statusElement.innerText = "あなたはまだ公式アカウントの友だちではありません。";
+                    // 外部ブラウザでは友だち追加の直接遷移は効果が薄いため、
+                    // メッセージ表示や、QRコードを表示するなどの案内に留めるのが一般的
                     const addFriendUrl = `https://line.me/R/ti/p/${MY_BOT_ID}`;
-                    liff.openWindow({
-                        url: addFriendUrl,
-                        external: false // 友だち追加URLはLINEアプリ内で処理する
-                    });
+                    statusElement.innerHTML += `<br><a href="${addFriendUrl}" target="_blank" rel="noopener noreferrer">こちらのリンクから友だち追加してください。</a>`;
                 }
 
             } catch (error) {
                 errorElement.innerText = `友だち確認中にエラーが発生しました: ${error.message}`;
-                statusElement.innerText = "友だち状態の確認に失敗しました。しばらくしてから再度お試しください。";
+                statusElement.innerText = "友だち状態の確認に失敗しました。";
                 console.error("Error checking friendship:", error);
             }
         }
