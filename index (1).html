@@ -1,211 +1,100 @@
 <!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <style type="text/css">
-      html, body {
-        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-
-      .home {
-        padding: 5rem 2rem;
-        text-align: center;
-      }
-
-      .home__title {
-        font-size: 6rem;
-        line-height: 1.15;
-      }
-
-      .home__title__link {
-        color: #06c755;
-        text-decoration: none;
-      }
-
-      .home__title__link:hover {
-        text-decoration: underline;
-      }
-
-      .home__badges {
-        align-items: center;
-        justify-content: center;
-        display: flex;
-        flex-wrap: nowrap;
-        overflow: hidden;
-        margin-bottom: 6rem;
-      }
-
-      .home__badges__badge:first-child {
-        border-top-left-radius: 2px;
-        border-bottom-left-radius: 2px;
-      }
-
-      .home__badges__badge:last-child {
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px;
-      }
-
-      .home__badges__badge {
-        display: inline-block;
-        padding: 0.3em 0.4em;
-        font-size: 0.75rem;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-      }
-
-      .badge--primary {
-        color: #353a40;
-        border: 1px solid #353a40;
-        background-color: transparent;
-        padding-top: calc(0.3em - 1px);
-        padding-bottom: calc(0.3em - 1px);
-      }
-
-      .badge--secondary {
-        color: #fff;
-        background-color: #353a40;
-      }
-
-      .home__buttons {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-
-      .home__buttons__button {
-        min-width: 250px;
-        cursor: pointer;
-        display: inline-block;
-        font-weight: 400;
-        text-align: center;
-        vertical-align: middle;
-        user-select: none;
-        border: 1px solid transparent;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.9375rem;
-        line-height: 1.5;
-        border-radius: 2px;
-        text-decoration: none;
-        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-      }
-
-      .button--primary {
-        color: #fff;
-        background-color: #00B900;
-        border-color: #00B900;
-      }
-
-      .button--primary:hover {
-        color: #fff;
-        background-color: #009300;
-        border-color: #008600;
-      }
-
-      .button--secondary {
-        color: #fff;
-        background-color: #353a40;
-        border-color: #353a40;
-      }
-
-      .button--secondary:hover {
-        color: #fff;
-        background-color: #24272b;
-        border-color: #1e2124;
-      }
-
-      .button--tertiary {
-        background-color: transparent;
-        background-image: none;
-        color: #353a40;
-        border-color: #353a40;
-      }
-
-      .button--tertiary:hover {
-        color: #353a40;
-        background-color: rgba(53,58,64,0.1);
-        border-color: #353a40;
-      }
-
-      @media screen and (max-width: 600px) {
-        html {
-          font-size: 12px;
-        }
-
-        .home__title {
-          font-size: 4rem;
-          line-height: 1.15;
-        }
-
-        .home__buttons__button {
-          font-size: 1.5rem;
-        }
-      }
-
-      @media screen and (max-width: 930px) {
-        .home__buttons {
-          flex-direction: column;
-        }
-      }
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFF Friendship Demo</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #errorMessage { color: red; }
+        #friendshipStatus { margin-top: 15px; font-weight: bold; }
     </style>
-    <title>LIFF Starter</title>
-  </head>
-  <body>
-    <div class="home">
-      <h1 class="home__title">
-        Welcome to <br /><a
-          class="home__title__link"
-          href="https://developers.line.biz/en/docs/liff/overview/"
-          >LIFF Starter!</a
-        >
-      </h1>
-      <div class="home__badges">
-        <span class="home__badges__badge badge--primary"> LIFF Starter </span>
-        <span class="home__badges__badge badge--secondary"> vanilla </span>
-        <span class="home__badges__badge badge--tertiary"> 0.1.0 </span>
-        <a
-          href="https://github.com/line/line-liff-v2-starter"
-          target="_blank"
-          rel="noreferrer"
-          class="home__badges__badge badge--secondary"
-        >
-          GitHub
-        </a>
-      </div>
-      <div class="home__buttons">
-        <a
-          href="https://developers.line.biz/en/docs/liff/developing-liff-apps/"
-          target="_blank"
-          rel="noreferrer"
-          class="home__buttons__button button--primary"
-        >
-          LIFF Documentation
-        </a>
-        <a
-          href="https://liff-playground.netlify.app/"
-          target="_blank"
-          rel="noreferrer"
-          class="home__buttons__button button--tertiary"
-        >
-          LIFF Playground
-        </a>
-        <a
-          href="https://developers.line.biz/console/"
-          target="_blank"
-          rel="noreferrer"
-          class="home__buttons__button button--secondary"
-        >
-          LINE Developers Console
-        </a>
-      </div>
-    </div>
-  </body>
+</head>
+<body>
+    <h1>LINEミニアプリ 友だち確認デモ</h1>
+
+    <p id="profileInfo">Loading user info...</p>
+    <p id="friendshipStatus"></p>
+    <p id="errorMessage"></p>
+
+    <script>
+        // 自身のLIFF IDに置き換えてください
+        const MY_LIFF_ID = "2007015940-Nrw3nRxd";
+        // 自身のLINE公式アカウントのID（@から始まるもの）に置き換えてください
+        const MY_BOT_ID = "@800dhxkb";
+
+        async function initializeLiff() {
+            const profileInfoElement = document.getElementById("profileInfo");
+            const errorElement = document.getElementById("errorMessage");
+            try {
+                await liff.init({ liffId: MY_LIFF_ID });
+
+                if (!liff.isLoggedIn()) {
+                    profileInfoElement.innerText = "LINEにログインしていません。ログイン画面に移動します...";
+                    
+                    // ★★★ 変更点 ★★★
+                    // 自動ログインを無効にして、SSO確認画面を意図的に表示させる
+                    liff.login({
+                        disable_auto_login: true
+                    });
+                    
+                    // liff.login()を呼び出すとページがリダイレクトされるため、以降の処理は行われない
+                    return;
+                }
+
+                // ログイン済みの場合
+                const profile = await liff.getProfile();
+                profileInfoElement.innerText = `ようこそ、${profile.displayName} さん！友だち状態を確認します...`;
+
+                // プロフィール取得後、自動的に友だち確認処理を実行
+                await checkFriendship();
+
+            } catch (error) {
+                profileInfoElement.innerText = "LIFF初期化またはプロフィール取得に失敗しました。";
+                errorElement.innerText = `エラー: ${error.message}`;
+                console.error("LIFF Initialization or Profile failed", error);
+            }
+        }
+
+        async function checkFriendship() {
+            const statusElement = document.getElementById("friendshipStatus");
+            const errorElement = document.getElementById("errorMessage");
+            statusElement.innerText = ""; // 前回の結果をクリア
+            errorElement.innerText = ""; // 前回のエラーをクリア
+            
+            if (!liff.isLoggedIn()) {
+                statusElement.innerText = "再度ログインが必要です。ページをリロードするか、アプリを再起動してください。";
+                return;
+            }
+
+            try {
+                const friendship = await liff.getFriendship();
+
+                if (friendship.friendFlag) {
+                    statusElement.innerText = "あなたは公式アカウントの友だちです！ミニアプリをご利用いただけます。";
+                    // ここで友だち向けのミニアプリのメインコンテンツを表示するなどの処理を行う
+                } else {
+                    statusElement.innerText = "あなたはまだ公式アカウントの友だちではありません。友だち追加ページに移動します。";
+                    // 友だちでない場合の遷移処理
+                    const addFriendUrl = `https://line.me/R/ti/p/${MY_BOT_ID}`;
+                    liff.openWindow({
+                        url: addFriendUrl,
+                        external: false // 友だち追加URLはLINEアプリ内で処理する
+                    });
+                }
+
+            } catch (error) {
+                errorElement.innerText = `友だち確認中にエラーが発生しました: ${error.message}`;
+                statusElement.innerText = "友だち状態の確認に失敗しました。しばらくしてから再度お試しください。";
+                console.error("Error checking friendship:", error);
+            }
+        }
+
+        // ページ読み込み時にLIFFを初期化し、自動的に処理を開始
+        window.onload = async () => {
+            await initializeLiff();
+        };
+    </script>
+</body>
 </html>
