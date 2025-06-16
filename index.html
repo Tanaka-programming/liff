@@ -3,20 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFF Friendship Demo</title>
+    <title>LIFF Back Button Demo</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; }
+        button { padding: 10px 15px; font-size: 16px; margin-top: 10px; cursor: pointer; }
         #errorMessage { color: red; }
         #friendshipStatus { margin-top: 15px; font-weight: bold; }
+        /* ページ切り替え用のCSS */
+        .page { display: none; }
+        .page.active { display: block; }
     </style>
 </head>
 <body>
-    <h1>LINEミニアプリ 友だち確認デモ</h1>
 
-    <p id="profileInfo">Loading user info...</p>
-    <p id="friendshipStatus"></p>
-    <p id="errorMessage"></p>
+    <div id="page1" class="page active">
+        <h1>LINEミニアプリ 戻るボタン動作確認デモ</h1>
+        <p><strong>現在地: ページ１</strong></p>
+        <p id="profileInfo">Loading user info...</p>
+        <p id="friendshipStatus"></p>
+        <p id="errorMessage"></p>
+        <button id="goToPage2Button" style="display: none;">詳細ページへ</button>
+    </div>
+
+    <div id="page2" class="page">
+        <h1>詳細ページ</h1>
+        <p><strong>現在地: ページ２</strong></p>
+        <p>LIFFブラウザ左上の「戻る」ボタンを押すと、前のページに戻ることを確認してください。</p>
+        <button id="goBackToPage1Button">ページ１へ戻る (アプリ内ボタン)</button>
+    </div>
+
 
     <script>
         // 自身のLIFF IDに置き換えてください
@@ -24,34 +40,45 @@
         // 自身のLINE公式アカウントのID（@から始まるもの）に置き換えてください
         const MY_BOT_ID = "@800dhxkb";
 
+        // ===== 主要なDOM要素の取得 =====
+        const pages = document.querySelectorAll('.page');
+        const profileInfoElement = document.getElementById("profileInfo");
+        const errorElement = document.getElementById("errorMessage");
+        const statusElement = document.getElementById("friendshipStatus");
+        const goToPage2Button = document.getElementById('goToPage2Button');
+        const goBackToPage1Button = document.getElementById('goBackToPage1Button');
+
+        /**
+         * 指定されたIDのページを表示する関数
+         * @param {string} pageId 表示するページのID (e.g., 'page1')
+         */
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        /**
+         * LIFFの初期化とログイン処理
+         */
         async function initializeLiff() {
-            const profileInfoElement = document.getElementById("profileInfo");
-            const errorElement = document.getElementById("errorMessage");
-            
             try {
                 // LIFFを初期化
                 await liff.init({ liffId: MY_LIFF_ID });
 
-                // ログイン状態をチェック
                 if (!liff.isLoggedIn()) {
-                    // 未ログインの場合、ユーザーにログインが必要なことを伝える
                     profileInfoElement.innerText = "サービスの利用にはLINEログインが必要です。ログイン画面に移動します。";
-                    
-                    // liff.login() を呼び出してLINEログインのフローを開始
-                    // ログイン後、同じページにリダイレクトされて戻ってくる
                     liff.login();
-                    
-                    // liff.login()はページをリダイレクトさせるため、これ以降のコードはこの実行では処理されない。
-                    // ログイン成功後にページが再読み込みされ、再度このinitializeLiff関数が実行されるのを待つ。
-                    return; 
+                    return;
                 }
 
                 // ===== ログイン済みの場合の処理 =====
                 profileInfoElement.innerText = "ログイン情報を取得中です...";
                 const profile = await liff.getProfile();
-                profileInfoElement.innerText = `ようこそ、${profile.displayName} さん！友だち状態を確認します...`;
+                profileInfoElement.innerText = `ようこそ、${profile.displayName} さん！`;
 
-                // プロフィール取得後、自動的に友だち確認処理を実行
+                // 友だち確認処理を実行
                 await checkFriendship();
 
             } catch (error) {
@@ -61,24 +88,21 @@
             }
         }
 
+        /**
+         * 友だち状態を確認する関数
+         */
         async function checkFriendship() {
-            const statusElement = document.getElementById("friendshipStatus");
-            const errorElement = document.getElementById("errorMessage");
-            statusElement.innerText = ""; // 前回の結果をクリア
-            errorElement.innerText = ""; // 前回のエラーをクリア
-            
             try {
                 const friendship = await liff.getFriendship();
-
                 if (friendship.friendFlag) {
                     statusElement.innerText = "あなたは公式アカウントの友だちです！";
                 } else {
                     statusElement.innerText = "あなたはまだ公式アカウントの友だちではありません。";
-                    // 外部ブラウザでは友だち追加の直接遷移は効果が薄いため、
-                    // メッセージ表示や、QRコードを表示するなどの案内に留めるのが一般的
                     const addFriendUrl = `https://line.me/R/ti/p/${MY_BOT_ID}`;
                     statusElement.innerHTML += `<br><a href="${addFriendUrl}" target="_blank" rel="noopener noreferrer">こちらのリンクから友だち追加してください。</a>`;
                 }
+                // 友だち確認が完了したら「詳細ページへ」ボタンを表示
+                goToPage2Button.style.display = 'block';
 
             } catch (error) {
                 errorElement.innerText = `友だち確認中にエラーが発生しました: ${error.message}`;
@@ -87,8 +111,35 @@
             }
         }
 
-        // ページ読み込み時にLIFFを初期化し、自動的に処理を開始
+        // ===== ページ遷移のイベントリスナー設定 =====
+
+        // 「詳細ページへ」ボタンがクリックされたときの処理
+        goToPage2Button.addEventListener('click', () => {
+            // 履歴を追加して、ブラウザの「戻る」が機能するようにする
+            history.pushState({ page: 'page2' }, '', '#page2');
+            showPage('page2');
+        });
+        
+        // 「ページ１へ戻る」ボタンがクリックされたときの処理
+        goBackToPage1Button.addEventListener('click', () => {
+             // ブラウザの履歴を一つ戻る操作を実行
+            history.back();
+        });
+
+        // ブラウザの「戻る」「進む」ボタンが押されたときの処理
+        window.addEventListener('popstate', (event) => {
+            // event.stateがnullの場合は初期ページと見なす
+            if (event.state === null || event.state.page === 'page1') {
+                showPage('page1');
+            } else if (event.state.page === 'page2') {
+                showPage('page2');
+            }
+        });
+
+        // ===== 初期化処理の実行 =====
         window.onload = async () => {
+            // ページ読み込み時に最初の状態を履歴に設定
+            history.replaceState({ page: 'page1' }, '', '#page1');
             await initializeLiff();
         };
     </script>
